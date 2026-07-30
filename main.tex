@@ -1,0 +1,752 @@
+\documentclass[9pt,a4paper]{article}
+
+\usepackage[a4paper,landscape,margin=0.4cm]{geometry}
+\usepackage{multicol}
+\usepackage{amsmath,amssymb,bm}
+\usepackage{mdframed}
+\usepackage{tikz}
+\usepackage{titlesec}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\setlength{\columnsep}{0.35cm}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{2pt}
+
+\titleformat{\section}{\large\scshape}{}{0pt}{}
+\titleformat{\subsection}{\normalsize\bfseries}{}{0pt}{}
+\titlespacing*{\section}{0pt}{2pt}{2pt}
+\titlespacing*{\subsection}{0pt}{1pt}{1pt}
+
+\begin{document}
+% % ======= ST2132-style 3-part dividers =======
+% \begin{tikzpicture}[remember picture,overlay]
+% % Line at 1/3 width
+% \draw[black!60, line width=0.8pt]
+%   ($(current page.south west)!0.333!(current page.south east)$) --
+%   ($(current page.north west)!0.333!(current page.north east)$);
+
+% % Line at 2/3 width
+% \draw[black!60, line width=0.8pt]
+%   ($(current page.south west)!0.666!(current page.south east)$) --
+%   ($(current page.north west)!0.666!(current page.north east)$);
+% \end{tikzpicture}
+
+\scriptsize
+
+\begin{center}
+\textbf{\Large CN3104 Cheatsheet AY25/26}\\
+Github:\href{https://github.com/Shaunteojiwu?tab=repositories}{Shaunteojiwu}\\
+\href{https://www.linkedin.com/in/shaun-teo-jiwu0824/}{LinkedIn} \\
+\end{center}
+
+\begin{multicols}{3}
+
+% ==========================================
+% NONLINEAR EQUATIONS
+% ==========================================
+\section{Nonlinear Equations}
+
+Goal: Solve $f(x)=0$.
+
+\subsection{Graphical Method}
+-Plot $f(x)$ vs $x$; roots where curve crosses x-axis.\\
+-Simple but imprecise.
+
+\subsection{Incremental Search}
+-Using computer's brute force (relies on trying all possibilities)\\
+1) Divide $[x_{\min},x_{\max}]$ into $n$ intervals.\\
+2) Find sign changes: if $f(x_i)f(x_{i+1})<0$, a root lies inside.\\
+-Use MATLAB function 'incsearch'\\
+-Default number of intervals, ns=50
+
+\textbf{Disadvantages:}  
+-Misses roots if step too large; slow if step too small.
+
+\subsection{Bracketing Method:Bisection}
+1) Guess 2 initial starting point, where the root is within.\\
+$f(a)f(b)<0$.(1 positive,1 negative-can apply incremental search/graphical method for initial guess).\\  
+2) Iterate midpoint:
+\[c=\frac{a+b}{2}.\]
+3) If $f(a)f(c)<0$ set $b=c$, else $a=c$.
+4) Stop when stopping criterion met. (threshold error, similar to error in fixed-point iteration)\\
+\textbf{Guaranteed convergence}, slow.
+
+\subsection{Fixed-Point Iteration}
+1) Rewrite $x=g(x)$.\\
+2) Iterate $x_{i+1}=g(x_i)$.\\
+3) Calculate error,
+Error:
+\[
+e_a=\left|\frac{x_{i+1}-x_i}{x_{i+1}}\right|100\%.
+\]
+-Stop when error within 0.01
+-For bisection, error xi+1 is new root for the present iteration
+
+%Converges if $|g'(x)|<1$.
+
+\subsection{Newton-Raphson}
+% \begin{figure}
+%     \centering
+%     \includegraphics[width=0.5\linewidth]{newtonraphson.png}
+%     \caption{Enter Caption}
+%     \label{fig:placeholder}
+% \end{figure}
+\begin{center}
+\includegraphics[width=0.7\linewidth]{newtonraphsonfull.jpg}
+\end{center}
+% \[
+% x_{i+1}=x_i-\frac{f(x_i)}{f'(x_i)}.
+% \]
+-Fast convergence. \\
+-Requires derivative and good initial guess.\\
+-Conditions for stop same as secant method.
+
+\subsection{Secant Method}
+No derivative needed, uses backward finite difference to estimate f'(x):
+\[
+x_{i+1}=x_i - f(x_i)\frac{x_i-x_{i-1}}{f(x_i)-f(x_{i-1})}.
+\]
+-Requires 2 starting value (do not need to bracket root)\\
+-Conditions for stop:
+$x_i \approx constant$ or $f(xi) \approx 0$
+
+
+% ==========================================
+% LINEAR SYSTEMS
+% ==========================================
+\section{Systems of Linear Equations}
+
+Solve $A\mathbf{x}=\mathbf{b}$.
+
+\subsection*{Gaussian Elimination vs.\ LU Factorization}
+
+\textbf{Gaussian Elimination (GE):}
+Goal: convert $A \to U$ (upper triangular).\
+Uses row operations: 
+    \[
+    R_2 \leftarrow R_2 - \frac{a_{21}}{a_{11}} R_1.
+    \]\
+Matrix $A$ is modified during elimination.\
+Does not store multipliers.\
+
+\textbf{LU Factorization:}
+    Goal: write $A = LU$.\
+    $U$ is obtained from elimination (same as GE).\
+    $L$ stores the multipliers used in elimination.\
+    To avoid changing $A$, start $L$ as the identity matrix and insert multipliers.\
+
+
+\textbf{Identity Matrix Trick:}
+\[
+L = I 
+\quad\Rightarrow\quad
+L(2,1) = m_{21} = \frac{a_{21}}{a_{11}}
+\]
+Insert each multiplier into $L$ while forming $U$.
+
+\textbf{Example:}
+\[
+A = \begin{bmatrix} 2 & 4 \\ 6 & 5 \end{bmatrix},
+\qquad
+m_{21} = \frac{6}{2} = 3
+\]
+\[
+U = \begin{bmatrix} 2 & 4 \\ 0 & -7 \end{bmatrix},
+\qquad
+L = \begin{bmatrix} 1 & 0 \\ 3 & 1 \end{bmatrix}
+\]
+\[
+A = LU
+\]
+
+Forward elimination to make $U$ upper triangular.  
+Then back-substitute.
+
+Pivot equation: eliminate variables below pivot using  
+\[
+\text{factor}=\frac{a_{ik}}{a_{kk}}.
+\]
+
+\subsection{Ill-Conditioning}
+Small changes in data cause large changesthe  in solution.
+
+% ==========================================
+% LINEAR REGRESSION
+% ==========================================
+\section{Linear Regression}
+
+Given data $(x_i,y_i)$.
+
+\subsection{Simple Linear Regression}
+{Goal:} Fit a straight line that best predicts $y$ from $x$\
+A model is linear if it is linear in the coefficients (parameters).\
+Model:  
+\[
+y = a_0 + a_1 x + e.
+\]
+
+Normal equations:
+\[
+a_0 n + a_1\sum x_i=\sum y_i
+\]
+\[
+a_0\sum x_i + a_1\sum x_i^2=\sum x_iy_i.
+\]
+
+\subsection{General Least Squares}
+Matrix form:  
+\[
+\hat{y}=Xb
+\]
+\[
+\varepsilon = y - Xb
+\]
+Minimize $\Phi=\varepsilon^T\varepsilon$.
+
+Solution:
+\[
+b = (X^T X)^{-1} X^T y.
+\]
+
+% ==========================================
+% INTEGRATION
+% ==========================================
+\section{Numerical Integration}
+
+Goal:
+\[
+I=\int_a^b f(x)\,dx.
+\]
+
+\subsection{Trapezoidal Rule}
+Single interval:
+\[
+I\approx\frac{b-a}{2}[f(a)+f(b)].
+\]
+
+Composite:
+\[
+I=\frac{h}{2}[f(x_0)+2\sum_{i=1}^{n-1}f(x_i)+f(x_n)].
+\]
+
+Error:
+\[
+E_a=-\frac{(b-a)^3}{12n^2}f''(\xi).
+\]
+
+\subsection{Simpson's 1/3 Rule}
+Requires even number of intervals:\
+\[
+I = (b - a)\,\frac{f(x_0) + 4f(x_1) + f(x_2)}{6}
+\]
+Composite:\
+\[
+I = (b - a)\,
+\frac{
+    f(x_0)
+    + 4 \sum_{\substack{i = 1 \\ i \text{ odd}}}^{n-1} f(x_i)
+    + 2 \sum_{\substack{j = 2 \\ j \text{ even}}}^{\,n-2} f(x_j)
+    + f(x_n)
+}{3n}
+\]
+
+\subsection{Simpson's 3/8 Rule}
+\[
+I = (b - a)\,\frac{f(x_0) + 3f(x_1) + 3f(x_2) + f(x_3)}{8}
+\]
+
+
+% ==========================================
+% DIFFERENTIATION
+% ==========================================
+\section{Numerical Differentiation}
+
+Using finite differences.
+
+\subsection{Forward Difference}
+\[
+f'(x_i)\approx\frac{f(x_{i+1})-f(x_i)}{h}.
+\]
+Error $O(h)$.
+
+\subsection{Backward Difference}
+\[
+f'(x_i)\approx\frac{f(x_i)-f(x_{i-1})}{h}.
+\]
+Error $O(h)$.
+
+\subsection{Central Difference}
+\[
+f'(x_i)\approx\frac{f(x_{i+1})-f(x_{i-1})}{2h}.
+\]
+Error $O(h^2)$.
+
+% ==========================================
+% Ordinary Differential Equations
+% ==========================================
+\section{ODEs}
+Solve:
+\[
+\frac{dy}{dt} = f(t,y),\quad y(t_0)=y_0.
+\]
+
+\subsection{Euler Method}
+Use finite difference approximation\
+\[
+\frac{dv}{dt} \approx \frac{\Delta v}{\Delta t}
+= \frac{v(t_{i+1}) - v(t_i)}{t_{i+1} - t_i}
+\]
+Rearranging the expression\
+\[
+v_{i+1}=v_i + \frac{dvi}{dt}{\Delta t}
+\]\
+General form:\
+\[
+y_{i+1} = y_i + f(t_i, y_i)\, h
+\]
+
+
+
+\subsection{Heun's Method (Improved Euler)}
+\[
+y_1 = y(t_0) 
+    + \frac{h}{2} \Big( 
+        f(t_0, y_0) 
+        + f\big(t_1,\, y_0 + h f(t_0, y_0)\big)
+      \Big)
+\]
+
+Predictor:
+\[
+k_1=f(t_i,y_i)
+\]
+Corrector:
+\[
+k_2=f(t_i+h,y_i+h k_1)
+\]
+Update:
+\[
+y_{i+1}=y_i+\frac{h}{2}(k_1+k_2).
+\]
+
+\subsection{Midpoint Method}
+\[
+y_{i+1} = y_i + f\!\left(t_{i+\frac{1}{2}},\, y_{i+\frac{1}{2}}\right) h
+\]
+
+\[
+k_1=f(t_i,y_i)
+\]
+\[
+k_m=f(t_i+\tfrac{h}{2},y_i+\tfrac{h}{2}k_1)
+\]
+\[
+y_{i+1}=y_i+h k_m.
+\]
+
+\subsection{Runge-Kutta 4 (RK4)}
+\[
+y_{i+1}
+= y_i
++ \frac{1}{6}\bigl(k_1 + 2k_2 + 2k_3 + k_4\bigr)h
+\]
+\[
+k_1 = f(t_i,\, y_i)
+\]
+
+\[
+k_2 = f\!\left(t_i + \frac{h}{2},\, y_i + \frac{h}{2}k_1\right)
+\]
+
+\[
+k_3 = f\!\left(t_i + \frac{h}{2},\, y_i + \frac{h}{2}k_2\right)
+\]
+
+\[
+k_4 = f(t_i + h,\, y_i + hk_3)
+\]
+
+% \[
+% k_1=f(t,y)
+% \]
+% \[
+% k_2=f(t+h/2, y + h k_1/2)
+% \]
+% \[
+% k_3=f(t+h/2, y + h k_2/2)
+% \]
+% \[
+% k_4=f(t+h, y + h k_3)
+% \]
+% \[
+% y_{i+1}=y_i+\frac{h}{6}(k_1+2k_2+2k_3+k_4).
+% \]
+
+\subsection{Adaptive RK (ode45)}
+MATLAB uses RK4(5) pair.  
+Small step when function changes quickly; large step otherwise.
+
+% ==========================================
+
+
+
+
+% \section*{Matrix \& Vector Rules (MATLAB Style)}
+
+% \subsection*{Basic Shapes}
+% \[
+% y \in \mathbb{R}^{n\times 1},\quad 
+% b \in \mathbb{R}^{m\times 1},\quad
+% X \in \mathbb{R}^{n\times m}
+% \]
+
+% \subsection*{Transpose Rules}
+% \[
+% (A + B)^T = A^T + B^T
+% \]
+% \[
+% (A - B)^T = A^T - B^T
+% \]
+% \[
+% (AB)^T = B^T A^T
+% \]
+
+% \subsection*{Inner Products \& Norms}
+% \[
+% a^T b = \text{scalar}
+% \]
+% \[
+% \|a\|^2 = a^T a = \sum_i a_i^2
+% \]
+% \[
+% \text{SSE} = (y - Xb)^T (y - Xb)
+% \]
+
+% \subsection*{Useful MATLAB Equivalents}
+% \begin{verbatim}
+% a' * b      % inner product
+% a' * a      % squared norm
+% e  = y - X*b;
+% SSE = e' * e;
+% \end{verbatim}
+
+% \subsection*{Derivative Rules}
+% \[
+% \frac{\partial}{\partial b}(c^T b) = c
+% \]
+% \[
+% \frac{\partial}{\partial b}\left(b^T A b\right)
+% = (A + A^T)b
+% \]
+% If \(A\) is symmetric:
+% \[
+% \frac{\partial}{\partial b}(b^T A b) = 2Ab
+% \]
+
+% \subsection*{Least Squares Gradient}
+% \[
+% \Phi(b) = (y - Xb)^T (y - Xb)
+% \]
+% \[
+% \nabla_b \Phi = 2X^T(Xb - y)
+% \]
+
+% \subsection*{Normal Equations}
+% \[
+% X^T X\, b = X^T y
+% \]
+% \[
+% b = (X^T X)^{-1}X^T y
+% \]
+
+% \subsection*{MATLAB Implementation}
+% \begin{verbatim}
+% e    = y - X*b;
+% grad = -2 * X' * e;
+
+% b_hat = (X' * X) \ (X' * y);
+% \end{verbatim}
+% \begin{multicols}{2}
+% \small
+
+% % ====== TITLE ======
+% \begin{center}
+% \textbf{\Large Matrix \& Vector Rules (MATLAB Style)}
+% \end{center}
+
+% % ====== BOX 1: SHAPES ======
+% \noindent\fbox{
+% \parbox{\linewidth}{
+% \textbf{Basic Shapes}
+% \[
+% y \in \mathbb{R}^{n\times 1},\quad 
+% b \in \mathbb{R}^{m\times 1},\quad
+% X \in \mathbb{R}^{n\times m}
+% \]
+% }}
+
+% \vspace{5pt}
+
+% % ====== BOX 2: TRANSPOSE ======
+% \noindent\fbox{
+% \parbox{\linewidth}{
+% \textbf{Transpose Rules}
+% \[
+% (A+B)^T = A^T + B^T
+% \]
+% \[
+% (A-B)^T = A^T - B^T
+% \]
+% \[
+% (AB)^T = B^T A^T
+% \]
+% }}
+
+% \vspace{5pt}
+
+% % ====== BOX 3: NORMS & INNER PRODUCTS ======
+% \noindent\fbox{
+% \parbox{\linewidth}{
+% \textbf{Inner Products \& Norms}
+% \[
+% a^T b = \text{scalar}, \quad
+% \|a\|^2 = a^T a
+% \]
+% \[
+% \text{SSE} = (y - Xb)^T (y - Xb)
+% \]
+% \texttt{
+% a' * b \quad \% inner product \\
+% a' * a \quad \% squared norm
+% }
+% }}
+
+% \vspace{5pt}
+
+% % ====== BOX 4: DERIVATIVES ======
+% \noindent\fbox{
+% \parbox{\linewidth}{
+% \textbf{Derivative Rules}
+% \[
+% \frac{\partial}{\partial b}(c^T b) = c
+% \]
+% \[
+% \frac{\partial}{\partial b}(b^T A b) 
+% = (A + A^T)b
+% \]
+% If \(A\) is symmetric:
+% \[
+% \frac{\partial}{\partial b}(b^T A b) = 2Ab
+% \]
+% }}
+
+% \vspace{5pt}
+
+% % ====== BOX 5: LEAST SQUARES ======
+% \noindent\fbox{
+% \parbox{\linewidth}{
+% \textbf{Least Squares}
+% \[
+% \Phi(b) = (y - Xb)^T (y - Xb)
+% \]
+% \[
+% \nabla_b \Phi = 2X^T(Xb - y)
+% \]
+% \[
+% X^T X\, b = X^T y
+% \]
+% \[
+% b = (X^T X)^{-1}X^T y
+% \]
+% \texttt{
+% e = y - X*b; \\
+% grad = -2 * X' * e; \\
+% b\_hat = (X' * X) \ (X' * y);
+% }
+% }}
+
+% \end{multicols}
+% \begin{multicols}{2}
+% \small
+
+% \begin{center}
+% \textbf{\Large Matrix \& Vector Rules (MATLAB Style)}
+% \end{center}
+
+% % ========== BOX 1 ==========
+% \noindent\fbox{
+% \parbox{\linewidth}{
+% \textbf{Basic Shapes}
+% \[
+% y\!:\!n\!\times\!1,\quad
+% b\!:\!m\!\times\!1,\quad
+% X\!:\!n\!\times\!m
+% \]
+% }}
+
+% \vspace{4pt}
+
+% % ========== BOX 2 ==========
+% \noindent\fbox{
+% \parbox{\linewidth}{
+% \textbf{Transpose Rules}
+% \[
+% (A+B)^T=A^T+B^T
+% \]
+% \[
+% (A-B)^T=A^T-B^T
+% \]
+% \[
+% (AB)^T = B^T A^T
+% \]
+% }}
+
+% \vspace{4pt}
+
+% % ========== BOX 3 ==========
+% \noindent\fbox{
+% \parbox{\linewidth}{
+% \textbf{Inner Products \& Norms}
+% \[
+% a^T b = \text{scalar},\qquad
+% \|a\|^2 = a^T a
+% \]
+% \[
+% \text{SSE} = (y - Xb)^T(y - Xb)
+% \]
+
+% {\ttfamily\small
+% a' * b   % inner product\\
+% a' * a   % norm squared
+% }
+% }}
+
+% \vspace{4pt}
+
+% % ========== BOX 4 ==========
+% \noindent\fbox{
+% \parbox{\linewidth}{
+% \textbf{Derivative Rules}
+% \[
+% \frac{\partial}{\partial b}(c^T b) = c
+% \]
+% \[
+% \frac{\partial}{\partial b}(b^T A b) 
+% = (A + A^T)b
+% \]
+% If \(A\) symmetric:
+% \[
+% \frac{\partial}{\partial b}(b^T A b)=2Ab
+% \]
+% }}
+
+% \vspace{4pt}
+
+% % ========== BOX 5 ==========
+% \noindent\fbox{
+% \parbox{\linewidth}{
+% \textbf{Least Squares}
+% \[
+% \Phi(b)=(y-Xb)^T(y-Xb)
+% \]
+% \[
+% \nabla_b\Phi
+% =2X^T(Xb-y)
+% \]
+% \[
+% X^TX\,b = X^T y
+% \]
+% \[
+% b = (X^TX)^{-1}X^T y
+% \]
+
+% {\ttfamily\small
+% e = y - X*b;\\
+% grad = -2 * X' * e;\\
+% b\_hat = (X' * X) \ (X' * y);
+% }
+% }}
+% \begin{multicols}{2}
+% \small
+
+% \begin{center}
+% \textbf{\Large Matrix \& Vector Rules}
+% \end{center}
+
+% \begin{mdframed}[linewidth=0.5pt]
+% \textbf{Basic Shapes}\\[-4pt]
+% \[
+% y\in\mathbb{R}^{n\times1},\ 
+% b\in\mathbb{R}^{m\times1},\ 
+% X\in\mathbb{R}^{n\times m}
+% \]
+% \end{mdframed}
+
+% \begin{mdframed}[linewidth=0.5pt]
+% \textbf{Transpose Rules}\\[-4pt]
+% \[
+% (A+B)^T=A^T+B^T
+% \]
+% \[
+% (A-B)^T=A^T-B^T
+% \]
+% \[
+% (AB)^T=B^T A^T
+% \]
+% \end{mdframed}
+
+% \begin{mdframed}[linewidth=0.5pt]
+% \textbf{Inner Products \& Norms}\\[-4pt]
+% \[
+% a^T b=\text{scalar},\quad 
+% \|a\|^2=a^T a
+% \]
+% \[
+% \text{SSE}=(y-Xb)^T(y-Xb)
+% \]
+
+% \ttfamily\small
+% a' * b   % inner product\\
+% a' * a   % squared norm
+% \end{mdframed}
+
+% \begin{mdframed}[linewidth=0.5pt]
+% \textbf{Derivative Rules}\\[-4pt]
+% \[
+% \frac{\partial}{\partial b}(c^Tb)=c
+% \]
+% \[
+% \frac{\partial}{\partial b}(b^TAb)=(A+A^T)b
+% \]
+% If \(A\) symmetric:
+% \[
+% \frac{\partial}{\partial b}(b^TAb)=2Ab
+% \]
+% \end{mdframed}
+
+% \begin{mdframed}[linewidth=0.5pt]
+% \textbf{Least Squares}\\[-4pt]
+% \[
+% \Phi(b)=(y-Xb)^T(y-Xb)
+% \]
+% \[
+% \nabla_b\Phi
+% =2X^T(Xb-y)
+% \]
+% \[
+% X^TX\,b=X^T y
+% \]
+% \[
+% b=(X^TX)^{-1}X^T y
+% \]
+
+% \ttfamily\small
+% e = y - X*b;\\
+% grad = -2 * X' * e;\\
+% b\_hat = (X' * X) \ (X' * y);
+% \end{mdframed}
+
+
+\end{multicols}
+\end{document}
